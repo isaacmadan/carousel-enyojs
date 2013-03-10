@@ -1,4 +1,106 @@
 enyo.kind({
+	name: "ImageCarousel2",
+	components: [
+		{
+		 kind: "onyx.Toolbar", 
+		 classes: "toolbar",
+		 style:"text-align:center;", 
+		 components: [
+			{kind: "onyx.Button", content:"&larr;", allowHtml: true, ontap:"previous"},
+			{kind: "onyx.Button", content:"&rarr;", allowHtml: true, ontap:"next"},
+			{kind: "onyx.Button", content:"Random", allowHtml: true, ontap:"getRandomIndex"},
+		]},
+		{ //image thumbnail carousel
+			name:"carousel", 
+			kind:"ImageCarousel", 
+			classes: "carousel", 
+			fit:false, 
+			onload:"load", 
+			onZoom:"zoom", 
+			onerror:"error", 
+			onTransitionStart: "transitionStart", 
+			onTransitionFinish: "transitionFinish",
+			ontap: "ontap",
+			disableZoom:true,
+		},
+		{ //preview panel
+			name:"previewPanel",
+			kind:"Image",
+			classes:"image",
+			src:"http://s3-ec.buzzfed.com/static/enhanced/web04/2012/4/27/17/enhanced-buzz-wide-30679-1335562313-2.jpg",
+		}
+	],
+	create: function() {
+		this.inherited(arguments);
+		this.urls = [ //image urls
+			"http://s3-ec.buzzfed.com/static/enhanced/web04/2012/4/27/17/enhanced-buzz-wide-30679-1335562313-2.jpg",
+			"http://s3-ec.buzzfed.com/static/enhanced/web04/2012/4/27/17/enhanced-buzz-wide-30647-1335562892-5.jpg",
+			"http://s3-ec.buzzfed.com/static/enhanced/terminal05/2012/5/7/20/enhanced-buzz-wide-5988-1336437280-8.jpg",
+			"http://s3-ec.buzzfed.com/static/enhanced/web04/2012/5/7/17/enhanced-buzz-wide-10369-1336425559-20.jpg",
+			"http://s3-ec.buzzfed.com/static/enhanced/web03/2012/5/7/17/enhanced-buzz-wide-20713-1336426884-6.jpg",
+			"http://s3-ec.buzzfed.com/static/enhanced/web03/2012/5/7/18/enhanced-buzz-wide-4949-1336429930-2.jpg",
+			"http://s3-ec.buzzfed.com/static/enhanced/web05/2012/5/7/19/enhanced-buzz-wide-14756-1336433115-2.jpg",
+			"http://s3-ec.buzzfed.com/static/enhanced/web03/2012/5/7/20/enhanced-buzz-wide-19341-1336435502-2.jpg",
+			"http://s3-ec.buzzfed.com/static/enhanced/terminal05/2012/5/10/10/enhanced-buzz-wide-22177-1336659410-11.jpg",
+			"http://s3-ec.buzzfed.com/static/enhanced/web05/2012/5/7/20/enhanced-buzz-wide-20497-1336436730-8.jpg"
+		];
+		//set images
+		this.$.carousel.setImages(this.urls);	
+	},
+	load: function(inSender, inEvent) {},
+	zoom: function(inSender, inEvent) {},
+	error: function(inSender, inEvent) {},
+	transitionStart: function(inSender, inEvent) {},
+	transitionFinish: function(inSender, inEvent) {
+		if (this.$.carouselIndexInput) {
+			this.$.carouselIndexInput.setValue(inEvent.toIndex);
+		}
+	},
+	previous: function(inSender, inEvent) {
+		this.$.carousel.previous();
+	},
+	next: function(inSender, inEvent) {
+		this.$.carousel.next();
+	},
+	getRandomIndex: function() {
+		var i = Math.floor(Math.random()*this.$.carousel.images.length);
+		while(i==this.$.carousel.index) { //make sure it isn't the active index
+			i = Math.floor(Math.random()*this.$.carousel.images.length);
+		}
+		this.$.carousel.setIndex(parseInt(i, 10));
+		this.$.previewPanel.setAttribute("src", this.$.carousel.images[this.$.carousel.index]);
+	},
+	updateIndex: function(inSender, inEvent) {
+		var index = this.trimWhitespace(this.$.carouselIndexInput.getValue());
+		if(index === "" || isNaN(index)) {
+			return;
+		}
+		this.$.carousel.setIndex(parseInt(index, 10));
+	},
+	trimWhitespace: function(inString) {
+		return inString.replace(/^\s+|\s+$/g,"");
+	},
+	ontap: function(inSender, inEvent) {
+		//console.log(inSender);
+		//console.log(inEvent.target.src);
+		/**var src = inSender.images[inSender.index];
+		var index = 0;
+		for(var i=0; i < this.$.carousel.images.length; i++) {
+			if(this.$.carousel.images[i] == src) {
+				index = i;
+			} 
+		}
+		//this.$.carousel6.setIndex(index);
+		//console.log(src);
+		**/
+		var src = inEvent.target.src;
+		if(src != undefined) {
+			this.$.previewPanel.setAttribute("src", src);
+		}
+	}
+});
+/** ignore - old version
+enyo.kind({
 	name: "ImageCarousel",
 	components: [
 		{
@@ -166,4 +268,4 @@ enyo.kind({
 		}
 		this.$.carousel6.setIndex(index);
 	}
-});
+});**/
